@@ -11,7 +11,11 @@ dependencies = [
     "ipykernel>=6.0",
     "jupyter>=1.0",
     "mcp>=1.13",
-    "fastapi>=0.116"
+    "fastapi>=0.116",
+    "databricks-sdk>=0.65,<0.66",
+    "databricks-mcp>=0.3,<0.4",
+    "openai>=0.104",
+    "rich>=14.1",
 ]
 
 [project.optional-dependencies]
