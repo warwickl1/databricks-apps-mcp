@@ -7,6 +7,18 @@ Having a custom MCP server allows external users to interact with your data usin
 
 This example project uses Databricks Apps to host the server itself, and also provides a short example of how to interact with the server in Python on your local machine.
 
+## How to use
+
+### Host the Server
+
+To host the server, run the following commands, replacing `<APP_NAME>` with your Databricks App name, and `<WORKSPACE_PATH>` with with your target workspace:
+
+```bash
+databricks sync . <WORKSPACE_PATH>
+databricks apps deploy <APP_NAME> --source-code-path <WORKSPACE_PATH>
+```
+
+Once done, make sure your app is started, and check that the logs are all present and no errors have occurred.
 
 ## Local Development Setup
 
