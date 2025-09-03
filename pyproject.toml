@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "project-name"
+version = "0.0.1"
+description = "Put your projects description here."
+requires-python = ">=3.10"
+dependencies = [
+    "ipykernel>=6.0",
+    "jupyter>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.0",
+    "ruff>=0.9",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "mypy>=1.5",
+]
+
+[tool.setuptools.packages.find]
+where = ["."] # Searches for packages in the current directory
+
+[tool.ruff.lint]
+select = ["ALL"]
+extend-ignore = [
+    # General
+    "E501", "W293", "FA100", "S608",
+    "FBT001", "FBT002", "FBT003", "EM101",
+    "EM102", "TRY003", "S301", "S110",
+    # Docstrings
+    "D203", "D100", "D105", "D107",
+    # Naming
+
+    # Pandas
+    "PD002",
+    # Others
+    "PLR0911", "PLR0912", "PLR0915",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"test/*" = ["S101", "ANN", "PLR", "BLE001", "ARG002"]
+"**/__init__.py" = ["F401"]
+"**/conftest.py" = ["F401"]

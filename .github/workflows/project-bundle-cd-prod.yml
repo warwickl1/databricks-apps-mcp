@@ -1,0 +1,45 @@
+# When we push to the 'release' (prod) branch, validate the DAB is correct and deploy to the Prod environment 
+# The project manager `uv` is used within the Databricks Asset Bundle
+name: Bundle Deployment for Prod
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - 'release'
+  workflow_dispatch:
+
+jobs:
+  prod:
+    concurrency: prod-bundle-job
+    runs-on: ubuntu-latest
+    environment: prod
+
+    # Get secrets for Databricks
+    env:
+      DATABRICKS_TOKEN : ${{ secrets.PROD_WORKSPACE_TOKEN }}
+
+    steps:
+      # Setup
+      - name: Checkout code
+        if: env.DATABRICKS_TOKEN != ''
+        uses: actions/checkout@v4
+      - name: Set up Databricks CLI
+        if: env.DATABRICKS_TOKEN != ''
+        uses: databricks/setup-cli@bf82b7a11475ed8d99eaf2920980fd091ca2cb12 # v0.221.1
+      - name: Install uv
+        if: env.DATABRICKS_TOKEN != ''
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5.4.2
+
+      # Validate
+      - name: Validate Bundle for Prod
+        id: validate
+        if: env.DATABRICKS_TOKEN != ''
+        run: databricks bundle validate -t prod --var="cluster_policy_id=${{ vars.PROD_CLUSTER_POLICY_ID }}"
+
+      # Deploy
+      - name: Deploy Bundle to Prod
+        id: Deploy
+        if: env.DATABRICKS_TOKEN != ''
+        run: databricks bundle deploy -t prod --var="cluster_policy_id=${{ vars.PROD_CLUSTER_POLICY_ID }}"

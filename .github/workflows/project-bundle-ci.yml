@@ -1,0 +1,62 @@
+# When we create a pull request, validate deployments for both Staging and Prod
+# Split into 2 jobs:
+#   1 - Validate deployment of DAB to staging
+#   2 - Validate deployment of DAB to prod
+name: Bundle Validation for Staging and Prod
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - './**'
+
+jobs:
+  staging:
+    concurrency: staging-bundle-job
+    runs-on: ubuntu-latest
+    environment: staging
+
+    # Get secrets for Databricks
+    env:
+      DATABRICKS_TOKEN: ${{ secrets.STAGING_WORKSPACE_TOKEN }}
+
+    steps:
+      # Setup
+      - uses: actions/checkout@v4
+        if: env.DATABRICKS_TOKEN != ''
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: databricks/setup-cli@bf82b7a11475ed8d99eaf2920980fd091ca2cb12 # v0.221.1
+
+      # Validate
+      - name: Validate Bundle for Staging
+        id: validate
+        if: env.DATABRICKS_TOKEN != ''
+        run: databricks bundle validate -t staging --var="cluster_policy_id=${{ vars.STAGING_CLUSTER_POLICY_ID }}" > ../validate_output.txt
+
+  prod:
+    concurrency: prod-bundle-job
+    # Exit if we aren't ready for deployment
+    if: ${{ vars.PROD_CLUSTER_POLICY_ID != '' }}
+    runs-on: ubuntu-latest
+    environment: prod
+
+    # Get secrets for Databricks
+    env:
+      DATABRICKS_TOKEN: ${{ secrets.PROD_WORKSPACE_TOKEN }}
+
+    steps:
+      # Setup
+      - uses: actions/checkout@v4
+        if: env.DATABRICKS_TOKEN != ''
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: databricks/setup-cli@bf82b7a11475ed8d99eaf2920980fd091ca2cb12 # v0.221.1
+
+      # Validate
+      - name: Validate Bundle for Prod
+        id: validate
+        if: env.DATABRICKS_TOKEN != ''
+        run: databricks bundle validate -t prod --var="cluster_policy_id=${{ vars.PROD_CLUSTER_POLICY_ID }}" > ../validate_output.txt

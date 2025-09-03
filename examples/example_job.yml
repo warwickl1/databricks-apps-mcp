@@ -1,0 +1,64 @@
+variables:
+  cluster_policy_id:
+    description: The cluster policy for jobs.
+
+# We must define our cluster configuration here. This is spun up when the job runs
+# and immediately terminated after the job(s) completes.
+new cluster: &new_cluster
+  new_cluster:
+    policy_id: 001F979AFCBF38F9
+    data_security_mode: SINGLE_USER
+    spark_version: 13.3.x-scala2.12
+    node_type_id: i3.xlarge
+    aws_attributes: 
+      ebs_volume_type: GENERAL_PURPOSE_SSD
+      ebs_volume_count: 3
+      ebs_volume_size: 100
+    # Set these to match your project for cost management.
+    custom_tags:
+      Product: "example"
+      Project: "example"
+      Sub-Project: "pipeline"
+    # Increase the number of workers if your task is spark heavy.
+    autoscale:
+        min_workers: 1
+        max_workers: 1
+
+# Reusable permissions for jobs. Everyone can see, but only the data-science group can manage runs.
+common_permissions: &permissions
+  permissions:
+    - level: CAN_VIEW
+      group_name: users
+    - level: CAN_MANAGE_RUN
+      group_name: data-science
+
+resources:
+  jobs:
+    example_job:
+      name: example_job  # Name of the job in the Workflow UI
+  
+      # Jobs can consist of multiple tasks. Each task can be a notebook, JAR, or Python script.
+      tasks:
+        - task_key: notebook_task
+          job_cluster_key: example_cluster  # Use the cluster defined below
+          notebook_task:
+            notebook_path: ../workflows/run_pipeline.ipynb
+            # Here we can pass in the variables defined in the databricks.yml
+            base_parameters:
+              env: ${bundle.target}  # Example variable: which environment are we running in?
+              catalog:  ${var.dbx_catalog}  # Example variable: which catalog to write to?
+              schema: ${var.dbx_schema}  # Example variable: which schema to write to?
+          libraries:
+            - whl: ../dist/*.whl
+  
+      # This tells the job to use this cluster configuration
+      # The `new_cluster` line refers to the cluster configuration defined at the top.
+      job_clusters:
+        - job_cluster_key: example_cluster
+          <<: *new_cluster
+  
+      # Tags for the job. These can be used for filtering in the UI.
+      tags:
+        project: ${bundle.name}
+        stage: ${bundle.target}
+      <<: *permissions  
