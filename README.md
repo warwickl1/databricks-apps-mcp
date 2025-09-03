@@ -23,10 +23,14 @@ Once done, make sure your app is started, and check that the logs are all presen
 ## Connect using the client
 
 Before running the client and interacting with the server, you must create a `.env` file with the following keys:
-- `DATABRICKS_APP_URL`: Full URL pointing to your Databricks App. Example: `https/app-name-id.databricksapps.com/mcp`
-- `DATABRICKS_MODEL_NAME`: Name of the model to use. Example: `databricks-gpt-oss-120b`
-- `DATABRICKS_TOKEN`: Databricks PAT token. Starts with 'dapi'. Example: `dapi_7f9c2a1e8b4d6f3a9e2b`
-- `DATABRICKS_ENDPOINTS_URL`: URl pointing to the serving endpoints in Databricks. Example: `https://workspace-environemnt.cloud.databricks.com/serving-endpoints/`
+- `DATABRICKS_APP_URL`: Full URL pointing to your Databricks App.
+  - Example: `https/app-name-id.databricksapps.com/mcp`
+- `DATABRICKS_MODEL_NAME`: Name of the model to use.
+  - Example: `databricks-gpt-oss-120b`
+- `DATABRICKS_TOKEN`: Databricks PAT token. Starts with 'dapi'.
+  - Example: `dapi_7f9c2a1e8b4d6f3a9e2b`
+- `DATABRICKS_ENDPOINTS_URL`: URl pointing to the serving endpoints in Databricks.
+  - Example: `https://workspace-environemnt.cloud.databricks.com/serving-endpoints/`
 
 Once the environment variables are all set, you can run the client in your terminal using `uv`:
 
